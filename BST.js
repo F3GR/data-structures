@@ -51,12 +51,14 @@ class BTSFromSorted {
     levelOrderRec(fn) {
         return levelOrderTraverseRec(this.root, fn)
     }
-    inorder() {
+    inorder(fn) {
+        return inOrderTraverse(this.root, fn)
     }
-    preorder() {
+    preorder(fn) {
+        return preOrderTraverse(this.root, fn)
     }
-    postorder() {
-
+    postorder(fn) {
+        return postOrderTraverse(this.root, fn)
     }
     height() {
         return calculateHeight(this.root)
@@ -68,7 +70,8 @@ class BTSFromSorted {
         return checkBalanced(this.root)
     }
     rebalance() {
-
+        const arr = this.inorder()
+        this.root = this._buildTree(arr)
     }
 }
 
@@ -162,16 +165,74 @@ function levelOrderTraverseRec(root, fn) {
     levelOrderTraverseRec(root.left, fn)
     levelOrderTraverseRec(root.right, fn)
 }
+function inOrderTraverse(root, fn) {
+    const arr = []
+    if (!fn) {
+        fn = (node) => arr.push(node.value)
+    }
 
-function calculateHeight(root, maxHeight = -1) {
+    function traverse(node) {
+        if (node === null) {
+            return
+        }
+
+        traverse(node.left)
+        fn(node)
+        traverse(node.right)
+    }
+    traverse(root)
+    if (arr.length) {
+        return arr
+    }
+}
+function preOrderTraverse(root, fn) {
+    const arr = []
+    if (!fn) {
+        fn = (node) => arr.push(node.value)
+    }
+
+    function traverse(node) {
+        if (node === null) {
+            return
+        }
+
+        fn(node)
+        traverse(node.left)
+        traverse(node.right)
+    }
+    traverse(root)
+    if (arr.length) {
+        return arr
+    }
+}
+function postOrderTraverse(root, fn) {
+    const arr = []
+    if (!fn) {
+        fn = (node) => arr.push(node.value)
+    }
+
+    function traverse(node) {
+        if (node === null) {
+            return
+        }
+
+        traverse(node.left)
+        traverse(node.right)
+        fn(node)
+    }
+    traverse(root)
+    if (arr.length) {
+        return arr
+    }
+}
+function calculateHeight(root) {
     if (root === null) {
-        return maxHeight
+        return -1
     }
 
-    if (maxHeight < 0) {
-        maxHeight = 0
-    }
-    return Math.max(calculateHeight(root.left, maxHeight), calculateHeight(root.right, maxHeight)) + 1;
+    const leftHeight = calculateHeight(root.left)
+    const rightHeight = calculateHeight(root.right)
+    return Math.max(leftHeight, rightHeight) + 1
 }
 function calculateDepth(root, node, depth = -1) {
     if (root === null) {
@@ -195,18 +256,39 @@ function calculateDepth(root, node, depth = -1) {
     return rightDepth
 }
 function checkBalanced(root) {
+    if (root === null) {
+        return true
+    }
     return Math.abs(calculateHeight(root.left) - calculateHeight(root.right)) <= 1 && 
             checkBalanced(root.left) && 
             checkBalanced(root.right)
 }
 
 const array = []
+for (let i = 0; i < 10; i++) {
+    array.push(Math.floor(Math.random() * 100))
+}
+array.sort((a, b) => a - b)
 const BTS = new BTSFromSorted(array)
 BTS.print()
-BTS.insert(10)
-BTS.insert(5)
-BTS.insert(3)
-BTS.print()
-console.log(BTS.height())
-console.log(BTS.depth(BTS.find(3)))
 console.log(BTS.isBalanced())
+console.log('Inorder before pushing items > 100')
+BTS.inorder(((node) => console.log(node.value)))
+console.log('Preorder before pushing items > 100')
+BTS.preorder(((node) => console.log(node.value)))
+console.log('Postorder before pushing items > 100')
+BTS.postorder(((node) => console.log(node.value)))
+BTS.insert(150)
+BTS.insert(160)
+BTS.insert(200)
+BTS.print()
+console.log(BTS.isBalanced())
+BTS.rebalance()
+console.log(BTS.isBalanced())
+BTS.print()
+console.log('Inorder after pushing items > 100')
+BTS.inorder(((node) => console.log(node.value)))
+console.log('Preorder after pushing items > 100')
+BTS.preorder(((node) => console.log(node.value)))
+console.log('Postorder after pushing items > 100')
+BTS.postorder(((node) => console.log(node.value)))
